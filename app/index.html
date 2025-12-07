@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>PeeTracker Mini App</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            background: #f7f7f7;
+            font-family: sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        h2 {
+            margin-bottom: 30px;
+        }
+        button {
+            width: 80%;
+            padding: 15px;
+            margin: 10px;
+            border-radius: 10px;
+            border: none;
+            font-size: 18px;
+        }
+        .pee {
+            background: #4CAF50;
+            color: white;
+        }
+        .shit {
+            background: #FF5722;
+            color: white;
+        }
+        .leaderboard {
+            background: #3F51B5;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+    <h2>شاش‌شمار - Mini App</h2>
+
+    <button class="pee" onclick="sendPee()">🚽 شاشیدم</button>
+    <button class="shit" onclick="sendShit()">💩 ریدم</button>
+    <button class="leaderboard" onclick="sendLeaderboard()">📊 جدول امروز</button>
+
+    <script>
+        const tg = Telegram.WebApp;
+        tg.expand();
+
+        function sendPee() {
+            tg.sendData(JSON.stringify({ action: "pee" }));
+        }
+
+        function sendShit() {
+            tg.sendData(JSON.stringify({ action: "shit" }));
+        }
+
+        function sendLeaderboard() {
+            tg.sendData(JSON.stringify({ action: "leaderboard" }));
+        }
+
+        tg.ready();
+    </script>
+
+</body>
+</html>
