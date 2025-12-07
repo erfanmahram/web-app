@@ -1,68 +1,115 @@
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <title>PeeTracker Mini App</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body {
-            background: #f7f7f7;
-            font-family: sans-serif;
-            text-align: center;
-            padding: 20px;
-        }
-        h2 {
-            margin-bottom: 30px;
-        }
-        button {
-            width: 80%;
-            padding: 15px;
-            margin: 10px;
-            border-radius: 10px;
-            border: none;
-            font-size: 18px;
-        }
-        .pee {
-            background: #4CAF50;
-            color: white;
-        }
-        .shit {
-            background: #FF5722;
-            color: white;
-        }
-        .leaderboard {
-            background: #3F51B5;
-            color: white;
-        }
-    </style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>شاش‌شمار — Mini App</title>
+
+  <!-- Inline styles (no external CSS) -->
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--accent:#10b981;--danger:#ff7043;--text:#e6eef8}
+    html,body{height:100%;margin:0;font-family:Tahoma,system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial}
+    body{background:linear-gradient(180deg,#071126 0%, #071a2a 100%);color:var(--text);display:flex;align-items:center;justify-content:center;padding:20px}
+    .wrap{width:100%;max-width:720px}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));border-radius:14px;padding:18px;box-shadow:0 6px 24px rgba(2,6,23,0.6)}
+    h1{margin:0 0 10px;font-size:20px;text-align:center}
+    p.hint{margin:6px 0 18px;text-align:center;color:#bcd3e6}
+    .btns{display:grid;grid-template-columns:1fr;gap:10px}
+    .btn{padding:14px;border-radius:10px;border:0;font-size:16px;cursor:pointer;box-shadow:0 4px 12px rgba(2,6,23,0.5)}
+    .btn:active{transform:translateY(1px)}
+    .btn.pee{background:linear-gradient(90deg,#14b8a6,#06b6d4);color:#042028}
+    .btn.shit{background:linear-gradient(90deg,#ff7043,#ff8a65);color:#2b0700}
+    .btn.board{background:linear-gradient(90deg,#4f46e5,#3b82f6);color:white}
+    .status{margin-top:14px;padding:10px;border-radius:8px;background:rgba(255,255,255,0.02);text-align:center;color:#d7eaf6;font-size:14px}
+    .hidden{display:none}
+    /* fallback for not inside Telegram */
+    .not-tg{border:1px dashed rgba(255,255,255,0.06);padding:12px;border-radius:8px;margin-top:12px;color:#ffd1d1;background:rgba(255,0,0,0.02)}
+    small.note{display:block;margin-top:8px;color:#a7c0d8}
+  </style>
 </head>
-
 <body>
+  <div class="wrap">
+    <div class="card" id="appCard">
+      <h1>شاش‌شمار — Mini App</h1>
+      <p class="hint">از دکمه‌ها برای ثبت سریع استفاده کن — همه‌چیز داخل تلگرام ثبت می‌شود.</p>
 
-    <h2>شاش‌شمار - Mini App</h2>
+      <div class="btns" id="controls">
+        <button class="btn pee" id="btnPee">🚽 شاشیدم</button>
+        <button class="btn shit" id="btnShit">💩 ریدم</button>
+        <button class="btn board" id="btnBoard">📊 جدول امروز</button>
+      </div>
 
-    <button class="pee" onclick="sendPee()">🚽 شاشیدم</button>
-    <button class="shit" onclick="sendShit()">💩 ریدم</button>
-    <button class="leaderboard" onclick="sendLeaderboard()">📊 جدول امروز</button>
+      <div id="status" class="status hidden"></div>
 
-    <script>
-        const tg = Telegram.WebApp;
-        tg.expand();
+      <div id="notTg" class="not-tg hidden">
+        <strong>تذکر:</strong> این مینی‌اپ باید <em>داخل تلگرام</em> باز شود تا عمل کند.<br>
+        اگر در مرورگر باز کردی، از بات در تلگرام دکمه‌ی وب‌اپ را فشار بده یا از دستور زیر استفاده کن:
+        <small class="note">در ربات تایپ کن: <code>/startapp</code> و بعد دکمه وب‌اپ را بزن</small>
+      </div>
+    </div>
+  </div>
 
-        function sendPee() {
-            tg.sendData(JSON.stringify({ action: "pee" }));
+  <!-- Telegram Web App SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <script>
+    (function(){
+      const statusEl = document.getElementById('status');
+      const notTgEl = document.getElementById('notTg');
+      const isInsideTelegram = !!window.Telegram && !!window.Telegram.WebApp;
+      let tg = isInsideTelegram ? window.Telegram.WebApp : null;
+
+      function showStatus(msg, short=true){
+        statusEl.classList.remove('hidden');
+        statusEl.textContent = msg;
+        if(!short){
+          // keep visible
         }
+        setTimeout(()=>{ statusEl.classList.add('hidden'); }, 3500);
+      }
 
-        function sendShit() {
-            tg.sendData(JSON.stringify({ action: "shit" }));
+      // If not inside Telegram, show fallback
+      if(!isInsideTelegram){
+        notTgEl.classList.remove('hidden');
+      } else {
+        try{
+          tg.expand(); // request fullscreen
+          tg.ready();
+        }catch(e){
+          console.warn("tg init:", e);
         }
+      }
 
-        function sendLeaderboard() {
-            tg.sendData(JSON.stringify({ action: "leaderboard" }));
+      // Helpers to send data back to bot
+      function sendAction(action){
+        if(!isInsideTelegram){
+          // fallback: just show message locally
+          showStatus('تست: ' + action, false);
+          console.log('Would send:', action);
+          return;
         }
+        const payload = { action: action, ts: Date.now() };
+        try{
+          tg.sendData(JSON.stringify(payload));
+          showStatus('ارسال شد ✅');
+          // Optionally close the webapp after send:
+          // setTimeout(()=>tg.close(), 800);
+        }catch(err){
+          console.error('sendData error', err);
+          showStatus('ارسال با خطا مواجه شد ❌');
+        }
+      }
 
-        tg.ready();
-    </script>
+      // wire buttons
+      document.getElementById('btnPee').addEventListener('click', ()=> sendAction('pee'));
+      document.getElementById('btnShit').addEventListener('click', ()=> sendAction('shit'));
+      document.getElementById('btnBoard').addEventListener('click', ()=> sendAction('leaderboard'));
 
+      // optional: handle back/close events
+      if(isInsideTelegram){
+        tg.onEvent('themeChanged', ()=>{ /* you can respond to theme */ });
+      }
+    })();
+  </script>
 </body>
 </html>
