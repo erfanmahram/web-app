@@ -111,5 +111,10 @@
       }
     })();
   </script>
+  <script>
+window.onerror = function(message, source, lineno, colno, error) {
+    document.body.innerHTML = "<pre style='color:red'>" + message + "</pre>";
+};
+</script>
 </body>
 </html>
